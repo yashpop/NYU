@@ -6,34 +6,22 @@ import sys
 
 def webServer(port=13331):
     serverSocket = socket(AF_INET, SOCK_STREAM)
-    # Prepare a server socket
     serverSocket.bind(("", port))
-    # Fill in start
     serverSocket.listen(9)
-    # Fill in end
-
     while True:
-        # Establish the connection
-        # print('Ready to serve...')
-        connectionSocket, addr = serverSocket.accept()  # Fill in start      #Fill in end
+        connectionSocket, addr = serverSocket.accept()
         try:
-            #print("Connection Socket accepted")
             try:
-                message = connectionSocket.recv(1024).decode()  # Fill in start    #Fill in end
-                #print(message)
+                message = connectionSocket.recv(1024).decode()
+                print(message)
                 filename = message.split()[1]
                 f = open(filename[1:], 'r')
-                outputdata = f.readlines()  # Fill in start     #Fill in end
+                outputdata = f.read()
                 f.close()
                 # Send one HTTP header line into socket.
-                # Fill in start
-                connectionSocket.send('HTTP/1.0 200 OK\nContent-Type: text/html\n'.encode())
-                # Fill in end
-
-                # Send the content of the requested file to the client
+                connectionSocket.send('HTTP/1.0 200 OK\nContent-Type: text/html\n\n'.encode())
                 for i in range(0, len(outputdata)):
                     connectionSocket.send(outputdata[i].encode())
-
                 connectionSocket.send("\r\n".encode())
                 connectionSocket.close()
             except IOError:
@@ -42,13 +30,10 @@ def webServer(port=13331):
                 outputdata = 'HTTP/1.0 404 NOT FOUND\nContent-Type: text/html\n\n<html><p><b>Not Found</b></p>'
                 connectionSocket.send(outputdata.encode())
                 connectionSocket.send("\r\n".encode())
-                # Fill in end
-                # Close client socket
-                # Fill in start
                 connectionSocket.close()
-                # Fill in end
-            break
+            # break
         except (ConnectionResetError, BrokenPipeError):
+            print("shitty code")
             pass
 
     serverSocket.close()
