@@ -11,19 +11,19 @@ import binascii
 ICMP_ECHO_REQUEST = 8
 
 
-def checksum(chars):
+def checksum(string):
     csum = 0
-    countTo = (len(chars) // 2) * 2
+    countTo = (len(string) // 2) * 2
     count = 0
 
     while count < countTo:
-        thisVal = ord(chars[count + 1]) * 256 + ord(chars[count])
+        thisVal = ord(string[count + 1]) * 256 + ord(string[count])
         csum += thisVal
         csum &= 0xffffffff
         count += 2
 
-    if countTo < len(chars):
-        csum += ord(chars[len(chars) - 1])
+    if countTo < len(string):
+        csum += ord(string[len(string) - 1])
         csum &= 0xffffffff
 
     csum = (csum >> 16) + (csum & 0xffff)
@@ -128,7 +128,7 @@ def ping(host, timeout=1):
 
 
 if __name__ == '__main__':
-    # ping("google.co.il")
-    ping("amazon.in")
+    ping("google.co.il")
+    # ping("amazon.in")
 # Pinger_skeleton.py
 # Displaying Pinger_skeleton.py.
