@@ -11,19 +11,19 @@ import binascii
 ICMP_ECHO_REQUEST = 8
 
 
-def checksum(string):
+def checksum(chars):
     csum = 0
-    countTo = (len(string) // 2) * 2
+    countTo = (len(chars) // 2) * 2
     count = 0
 
     while count < countTo:
-        thisVal = (string[count + 1]) * 256 + (string[count])
+        thisVal = ord(chars[count + 1]) * 256 + ord(chars[count])
         csum += thisVal
         csum &= 0xffffffff
         count += 2
 
-    if countTo < len(string):
-        csum += (string[len(string) - 1])
+    if countTo < len(chars):
+        csum += ord(chars[len(chars) - 1])
         csum &= 0xffffffff
 
     csum = (csum >> 16) + (csum & 0xffff)
