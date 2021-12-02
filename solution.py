@@ -4,7 +4,6 @@ import sys
 import struct
 import time
 import select
-import binascii
 
 # Should use stdev
 
@@ -110,6 +109,20 @@ def doOnePing(destAddr, timeout):
     mySocket.close()
     return delay
 
+def avg(elems):
+    size=len(elems)
+    val=0
+    for i in elems:
+        val+=i
+    return val/size
+
+def std_dev(elems):
+    sum=0
+    mean=avg(elems)
+    for elem in elems:
+        sum+=(elem-mean)**2
+    return (sum/len(elems))**(1/2)
+
 
 def ping(host, timeout=1):
     # timeout=1 means: If one second goes by without a reply from the server,  	# the client assumes that either the client's ping or the server's pong is lost
@@ -117,13 +130,19 @@ def ping(host, timeout=1):
     # print("Pinging " + dest + " using Python:")
     # print("")
     # Calculate vars values and return them
-    # vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev(stdev_var), 2))]
+    delay=[]
     # Send ping requests to a server separated by approximately one second
     for i in range(0, 4):
-        delay = doOnePing(dest, timeout)
+        delay.append(doOnePing(dest, timeout))
         # print(delay)
         time.sleep(1)  # one second
-
+    packet_min = min(delay)
+    packet_max = max(delay)
+    packet_avg = avg(delay)
+    stddev_var = std_dev(delay)
+    vars = [str(packet_min), str(packet_avg), str(packet_max),
+            str(stddev_var)]
+    # print(vars)
     return vars
 
 
