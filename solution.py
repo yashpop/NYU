@@ -113,7 +113,7 @@ def avg(elems):
     size=len(elems)
     val=0
     for i in elems:
-        val+=i
+        val+=float(i)
     return val/size
 
 def std_dev(elems):
@@ -142,7 +142,7 @@ def ping(host, timeout=1):
     stddev_var = std_dev(delay)
     vars = [str(packet_min), str(packet_avg), str(packet_max),
             str(stddev_var)]
-    # print(vars)
+    print(vars)
     return vars
 
 
