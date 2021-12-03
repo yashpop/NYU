@@ -5,8 +5,6 @@ import struct
 import time
 import select
 
-# Should use stdev
-
 ICMP_ECHO_REQUEST = 8
 
 
@@ -16,7 +14,7 @@ def checksum(string):
     count = 0
 
     while count < countTo:
-        thisVal = ord(string[count + 1]) * 256 + ord(string[count])
+        thisVal = string[count + 1] * 256 + string[count]
         csum += thisVal
         csum &= 0xffffffff
         count += 2
@@ -49,7 +47,8 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         # Fill in start
 
         # Fetch the ICMP header from the IP packet
-        # icmph = recPacket[160:192]
+        # Header is type (8), code (8), checksum (16), id (16), sequence (16)
+        # icmph = recPacket[176:184]
         icmph = recPacket[20:28]
         type, code, checksum, pID, sq = struct.unpack("bbHHh", icmph)
         # icmp Type, code, checksum, packetID, sequence
@@ -80,7 +79,7 @@ def sendOnePing(mySocket, destAddr, ID):
     data = struct.pack("d", time.time())
     # print(data)
     # Calculate the checksum on the data and the dummy header.
-    myChecksum = checksum(str(header + data))
+    myChecksum = checksum(header + data)
     # Get the right checksum, and put in the header
 
     if sys.platform == 'darwin':
@@ -105,7 +104,6 @@ def doOnePing(destAddr, timeout):
     myID = os.getpid() & 0xFFFF  # Return the current process i
     sendOnePing(mySocket, destAddr, myID)
     delay = receiveOnePing(mySocket, myID, timeout, destAddr)
-    # print(delay)
     mySocket.close()
     return delay
 
@@ -113,7 +111,7 @@ def avg(elems):
     size=len(elems)
     val=0
     for i in elems:
-        val+=float(i)
+        val+=i
     return val/size
 
 def std_dev(elems):
@@ -129,25 +127,26 @@ def ping(host, timeout=1):
     dest = gethostbyname(host)
     # print("Pinging " + dest + " using Python:")
     # print("")
-    # Calculate vars values and return them
     delay=[]
     # Send ping requests to a server separated by approximately one second
     for i in range(0, 4):
-        delay.append(doOnePing(dest, timeout))
+        output=doOnePing(dest, timeout)
+        if output=="Request timed out.":
+            return ['0', '0.0', '0', '0.0']
+        delay.append(output)
         # print(delay)
         time.sleep(1)  # one second
+    # Calculate vars values and return them
     packet_min = min(delay)
     packet_max = max(delay)
     packet_avg = avg(delay)
-    stddev_var = std_dev(delay)
-    vars = [str(packet_min), str(packet_avg), str(packet_max),
-            str(stddev_var)]
-    print(vars)
+    stdev_var = std_dev(delay)
+    vars = [packet_min, packet_avg,packet_max,stdev_var]
+    # print(vars)
     return vars
 
 
 if __name__ == '__main__':
     ping("google.co.il")
     # ping("amazon.in")
-# Pinger_skeleton.py
-# Displaying Pinger_skeleton.py.
+
